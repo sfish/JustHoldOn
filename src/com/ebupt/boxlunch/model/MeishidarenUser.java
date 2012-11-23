@@ -1,0 +1,247 @@
+package com.ebupt.boxlunch.model;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import android.util.Log;
+
+import com.ebupt.boxlunch.datasource.LunchboxDatabase;
+
+public class MeishidarenUser {
+	//private String pNum = null;
+	
+	private int	 state = -1;
+	private String secCode = null;
+	private boolean savePassword = false;
+	private String recorded = "0" ;
+	private String uid =null;//用户的唯一标识符
+	private String username =null;//用户名，相当于昵称
+	private String psw = null;// 用户密码
+	private String gender = null;// 性别
+	private String intro = null;// 自我介绍
+	private String focusnum = null;// 关注数
+	private String followernum = null;// 粉丝数
+	private String tweetnum = null;// 美食微博数目
+	private String userpic  = null;//头像地址
+	private String cellphone  = null;//手机号码
+//	private String weiboshare  = null;//新浪微博主页地址
+	private String renrenshare  = null;//人人主页地址
+	private String birthday  = null;//生日
+	private int isfocus  = 0;//当前用户是否关注了该用户
+	private int isresetpassword ;//是否重置过密码
+	private int weiboshare=0; //0代表未绑定不分享，1代表绑定不分享，2代表绑定且设置分享
+	private int isvip = -1;
+	
+	public void print(){
+		Log.d("user","uid"+uid);
+		Log.d("user","username"+username);
+		Log.d("user","psw"+psw);
+		Log.d("user","gender"+gender);
+		Log.d("user","intro"+intro);
+		Log.d("user","focusnum"+focusnum);
+		Log.d("user","followernum"+followernum);
+		Log.d("user","tweetnum"+tweetnum);
+		Log.d("user","userpic"+userpic);
+		Log.d("user","state"+state);
+		Log.d("user","secCode"+secCode);
+		Log.d("user","savePassword"+savePassword);
+		Log.d("user","recorded"+recorded);
+
+//		Log.d("user",""+);
+	}
+	
+	
+	public MeishidarenUser(){
+		init(null,null,null);
+	}
+	
+	public MeishidarenUser(String pNum, String psw){
+		init(pNum,psw, recorded);
+	}
+	public MeishidarenUser(String pNum, String psw, String recorded){
+		init(pNum,psw, recorded);
+	}
+	private void init(String pNum, String psw, String recorded){
+		this.uid = pNum;
+		this.psw = psw;
+		this.recorded = recorded ;
+	}
+
+	public String getSecCode() {
+		return secCode;
+	}
+
+	public void setSecCode(String secCode) {
+		this.secCode = secCode;
+	}
+	public boolean isRecorded() {
+		if(this.recorded.equals(LunchboxDatabase.REMEMBER_PWD_NO)){
+			return false;
+		}
+		return true;
+	}
+
+	public void setRecorded(String secCode) {
+		this.recorded = secCode;
+	}
+	public String getUid() {
+		return uid;
+	}
+
+	public void setUid(String pNum) {
+		this.uid = pNum;
+	}
+
+	public String getPsw() {
+		return psw;
+	}
+
+	public void setPsw(String psw) {
+		this.psw = psw;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
+	}
+	
+	public boolean isSavePassword()
+	{
+		return savePassword ;
+	}
+	public void setSavePassword(boolean savePassword)
+	{
+		this.savePassword = savePassword;
+	}
+	
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getIntro() {
+		return intro;
+	}
+
+	public void setIntro(String intro) {
+		this.intro = intro;
+	}
+
+	public Map<String, String> toMap(){
+		Map<String, String>  ma = new HashMap<String, String>() ;
+		ma.put("uid", this.uid);
+		ma.put("pwd",  this.psw) ;
+		ma.put("remember", this.recorded) ;
+		return ma ;
+	}
+
+	public String getFollowernum() {
+		return followernum;
+	}
+
+	public void setFollowernum(String followernum) {
+		this.followernum = followernum;
+	}
+
+	public String getTweetnum() {
+		return tweetnum;
+	}
+
+	public void setTweetnum(String tweetnum) {
+		this.tweetnum = tweetnum;
+	}
+
+	public String getFocusnum() {
+		return focusnum;
+	}
+
+	public void setFocusnum(String focusnum) {
+		this.focusnum = focusnum;
+	}
+
+	public String getUserpic() {
+		return userpic;
+	}
+
+	public void setUserpic(String userpic) {
+		this.userpic = userpic;
+	}
+
+	public int getWeiboshare() {
+		return weiboshare;
+	}
+
+	public void setWeiboshare(int weiboshare) {
+		this.weiboshare = weiboshare;
+	}
+
+	public String getCellphone() {
+		return cellphone;
+	}
+
+	public void setCellphone(String cellphone) {
+		this.cellphone = cellphone;
+	}
+
+	public String getRenrenshare() {
+		return renrenshare;
+	}
+
+	public void setRenrenshare(String renrenshare) {
+		this.renrenshare = renrenshare;
+	}
+
+	public String getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(String birthday) {
+		this.birthday = birthday;
+	}
+
+
+	public int getIsfocus() {
+		return isfocus;
+	}
+
+
+	public void setIsfocus(int isfocus) {
+		this.isfocus = isfocus;
+	}
+
+
+	public int getIsresetpassword() {
+		return isresetpassword;
+	}
+
+
+	public void setIsresetpassword(int isresetpassword) {
+		this.isresetpassword = isresetpassword;
+	}
+
+
+	public int getIsvip() {
+		return isvip;
+	}
+
+
+	public void setIsvip(int isvip) {
+		this.isvip = isvip;
+	}
+
+	
+}

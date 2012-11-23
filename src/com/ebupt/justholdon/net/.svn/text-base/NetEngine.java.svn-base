@@ -1,0 +1,1854 @@
+package com.ebupt.boxlunch.net;
+
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.ebupt.boxlunch.exception.NoConnectException;
+import com.ebupt.boxlunch.exception.ParserException;
+import com.ebupt.boxlunch.model.Comment;
+import com.ebupt.boxlunch.model.MeishidarenUser;
+import com.ebupt.boxlunch.model.NetResult;
+import com.ebupt.boxlunch.model.TweetMsg;
+import com.ebupt.boxlunch.model.UpdateDetail;
+import com.ebupt.boxlunch.model.UserSimple;
+import com.ebupt.boxlunch.safty.DigestAlgorithms;
+import com.ebupt.boxlunch.util.JsonParser;
+import com.ebupt.boxlunch.util.ShortCut;
+
+public class NetEngine {//218.249.60.68:9000  //10.1.69.113:9000
+	
+	public static final String SERVER_IP_EB="http://10.1.69.113:9000/";
+	public static final String SERVER_IP_OUT="http://218.249.60.69:9000/";
+	public static final String FOOD_BASIC = "food/index.php";
+	public static String BSAE_URL = "http://10.1.69.113:9000/food/index.php";//"https://10.1.60.162:8443";//"http://220.194.57.165:8088" ;
+	
+	private final String TAG = "NetEngine";
+	
+	
+	private final String LOGIN_PAGE = "login" ;
+	private final String MODIFY_PASSWORD_PAGE = "resetPassword" ;
+	private final String MODIFY_USERINFO_PAGE = "modifyUserInfo" ;
+	private final String MODIFY_USERNAME_PAGE = "resetUsername" ;
+	private final String TWEET_PAGE = "toTweet" ;
+	private final String GET_FAV_PAGE = "getFavorites" ;
+	private final String ADD_FOCUS_PAGE = "addFocus" ;
+	private final String GET_USERINFO_PAGE = "getUserInfo" ;
+	private final String GET_TWEET_PAGE = "getUserTweets" ;
+	private final String GET_GOOD_TWEET_PAGE = "getUserGoodTweets" ;
+	private final String DO_SEARCH = "doSearch" ;
+	private final String GET_FOLLOWERS_PAGE = "getUserFollowers" ;
+	private final String GET_FOCUSERS_PAGE = "getUserFocus" ;
+	private final String DO_COMMENT_PAGE = "doComment" ;
+	private final String GET_COMMENTS_PAGE = "getComments" ;
+	private final String DO_LIKE_PAGE = "doGood" ;
+	private final String CANCEL_LIKE_PAGE = "cancelGood" ;
+	private final String GET_LIKES_PAGE = "getGoods" ;
+	private final String GET_CAT_TWEET_PAGE = "getCategoryTweets" ;
+	private final String UPLOAD_PIC_PAGE = "uploadPic" ;
+	private final String GET_MSG_PAGE = "getMessages" ;
+	private final String UPLOAD_AVA_PAGE = "uploadAvatar" ;
+	private final String SHARE_TWEET = "shareTweet" ;
+	private final String GET_WEIBO_FRI = "socialFriends";
+	private final String GET_ONE_TWEET = "showOneTweet";
+	
+	private final String BIND_WEIBO_PAGE = "bind" ;
+	private final String UNBIND_WEIBO_PAGE = "unbind" ;
+	private final String LOGIN_WEIBO_PAGE = "socialLogin" ;
+	private final String QUERY_BIND_WEIBO_PAGE = "querybindweibo.do" ;
+	private final String GET_MESSAGE = "getMessages" ;
+	private final String GET_USER_GOOD = "getUserGoodTweets" ;
+	
+	private final String GET_TOP_PAGE = "getTopTweets" ;
+	private final String GET_MY_SHARE = "getMyShares" ;
+	private final String GET_TOP_USERS = "getTopUsers" ;
+	private final String GET_TOP_SEARCH_WORDS = "getTopSearchWords" ;
+	private final String DELETETWEET = "deleteTweet";
+	
+
+	//  相关URL
+	private final String Meishidaren_BASIC_URL = BSAE_URL+ "/api/" ;
+
+	//private final String REGISTER_PAGE = "reg.do" ;
+	
+
+	//注册登录 相关URL
+	private final String REGISTER_BASIC_URL = BSAE_URL+ "/api/" ;
+	private final String REGISTER_PAGE = "register" ;
+	
+	
+	
+	public static final String APPUPDATE_BASIC_URL = "version" ;
+	private final String NO_ANSWER = "对不起，无法与服务器获取连接";
+		
+	private Context context = null;
+	
+	public NetEngine(Context ctx) {
+		context = ctx;
+	}
+	
+	
+
+//	public NetResult doMeishidarenGet(String page, Bundle bundle) throws  NoConnectException, java.io.IOException, ParserException{
+//		StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+//		sb.append(page);
+//		String ret = null;
+//		NetResult result = new NetResult() ;
+//		ret = NetUtils.openUrl(sb.toString(), "get", bundle, context);
+//		//Log.i(TAG, "ret = "+ret);
+//		result = JsonParser.parseNetResult(ret);
+//		Log.i(page, result.toString());
+//		return result ;
+//	}
+	public NetResult doMeishidarenPost(String page, Bundle bundle) throws  NoConnectException, java.io.IOException, ParserException{
+		StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+		sb.append(page);
+		String ret = null;
+		ret = NetUtils.openUrl(sb.toString(), "post", bundle, context);
+		//Log.i(TAG, "ret = "+ret);
+		NetResult  result = JsonParser.parseNetResult(ret);
+		Log.i(page, result.toString());
+		return result ;	
+	}
+	
+	public NetResult doMeishidarenGet(String page, Bundle bundle) throws  NoConnectException, java.io.IOException, ParserException{
+		StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+		sb.append(page);
+		String ret = null;
+		ret = NetUtils.openUrl(sb.toString(), "get", bundle, context);
+		//Log.i(TAG, "ret = "+ret);
+		NetResult  result = JsonParser.parseNetResult(ret);
+		Log.i(page, result.toString());
+		return result ;	
+	}
+	
+	public NetResult doMeishidarenListPost(String page, Bundle bundle) throws  NoConnectException, java.io.IOException, ParserException{
+		StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+		sb.append(page);
+		String ret = null;
+		ret = NetUtils.openUrl(sb.toString(), "post", bundle, context);
+		//Log.i(TAG, "ret = "+ret);
+		NetResult  result = JsonParser.parseListResult(ret);
+		Log.i(page, result.toString());
+		return result ;	
+	}
+	
+	public NetResult doTopSearchWordsGet(String page, Bundle bundle) throws  NoConnectException, java.io.IOException, ParserException{
+		StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+		sb.append(page);
+		String ret = null;
+		NetResult result = new NetResult() ;
+		ret = NetUtils.openUrl(sb.toString(), "post", bundle, context);
+		Log.i(page, result.toString());
+		result = JsonParser.parseTopSearchWordsResult(ret);
+		if (result== null ) Log.e(TAG,"ERROR! result is null!");
+		else Log.e(TAG,"result error message:"+result.getErrorMessage()+",result error code:"+result.getErrorCode());
+		Log.i(TAG, "result = "+result.getRetContent());
+		return result ;
+	}
+	
+	public HashMap<String,String> doSearchPost(String page, Bundle bundle) throws  NoConnectException, java.io.IOException, ParserException{
+		StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+		sb.append(page);
+		String ret = null;
+		ret = NetUtils.openUrl(sb.toString(), "post", bundle, context);
+		//Log.i(TAG, "ret = "+ret);
+		HashMap<String,String> result = JsonParser.parseSearchListResult(ret);
+		Log.i(page, result.toString());
+		return result ;	
+	}
+	
+	private NetResult doMeishidarenUpload(String page, Bundle bundle, InputStream is,String filename) throws  NoConnectException, java.io.IOException, ParserException{
+		StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+		sb.append(page);
+		String ret = null;
+		ret = NetUtils.uploadPic(sb.toString(), "post", bundle, context,is ,filename);
+		//Log.i(TAG, "ret = "+ret);
+		NetResult result = JsonParser.parseNetResult(ret);
+		Log.i(page, result.toString());
+		return result ;
+	}
+	
+	private NetResult doMeishidarenPic(String page, Bundle bundle, InputStream is,String filename) throws  NoConnectException, java.io.IOException, ParserException{
+		StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+		sb.append(page);
+		String ret = null;
+		ret = NetUtils.uploadPic(sb.toString(), "post", bundle, context,is ,filename);
+		//Log.i(TAG, "ret = "+ret);
+		NetResult result = JsonParser.parsePicNetResult(ret);
+		Log.i(page, result.toString());
+		return result ;
+	}
+	
+	
+	public NetResult doPost(String page, Bundle bundle) throws  NoConnectException, java.io.IOException, ParserException{
+		StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+		sb.append(page);
+		String ret = null;
+		ret = NetUtils.openUrl(sb.toString(), "get", bundle, context);
+//		Log.i(TAG, "ret = "+ret);
+		NetResult  result = JsonParser.parseNetResult(ret);
+		Log.i(page, result.toString());
+		return result ;	
+	}
+	
+
+	
+	
+//  /*4.2  解除绑定- 后台8.2
+//	http://203.181.161.230:8080/chailing/api/unbindweibo.do? 
+//	参数说明:
+//   	  msisdn : 用户手机号码
+//	  psw : 用户密码----编码urlencode, utf8
+//	返回结果:
+//	  {
+//		"errorCode":0,    --成功返回0
+//		"errorMessage":"", --errorCode 不为0时,返回具体错误信息
+//	  }*/
+//	public void unbindWeibo(String pNum,String psw) throws IOException, ParserException, NoConnectException{
+//		Bundle bundle = new Bundle();
+//		bundle.putString("msisdn", pNum);
+//		bundle.putString("psw", psw);
+//		NetResult result =  this.doMeishidarenGet(UNBIND_WEIBO_PAGE, bundle);
+//
+//		if(!result.getErrorCode().equals("0")){
+//			throw new ParserException(result.getErrorMessage() ) ;
+//		}
+//	}
+	
+	
+// /* 4.3  检测是否绑定- 后台4.4.	查询用户信息接口
+//	http://203.181.161.230:8080/chailing/api/querybindweibo.do? 
+//	参数说明:
+//   	  msisdn : 用户手机号码
+//	  psw : 用户密码----编码urlencode, utf8
+//	返回结果:
+//	  {
+//		"errorCode":0,    --成功返回0
+//		"errorMessage":"", --errorCode 不为0时,返回具体错误信息
+//		"weiboFlag":0 ---- 0:已经开通  1:尚未开通
+//	  }
+//	 */	
+//	public boolean queryBindWeibo(String pNum,String psw) throws IOException, ParserException, NoConnectException{
+//			Bundle bundle = new Bundle();
+//			bundle.putString("msisdn", pNum);
+//			bundle.putString("psw", psw);
+//			Log.v("WeiBo", "???start") ;
+//			NetResult result =  this.doMeishidarenGet(QUERY_BIND_WEIBO_PAGE, bundle);
+//
+//			if(!result.getErrorCode().equals("0")){
+//				throw new ParserException(result.getErrorMessage() ) ;
+//			} else{
+//				return JsonParser.queryBindWeibo(result.getRetContent())  ;
+//			}
+//		}
+//	
+	
+	
+	
+	
+	
+	/*
+	1.1	快速注册
+	method:register
+
+	调用参数
+ 	无
+
+	返回项说明：
+	返回项	描 述	格 式
+	status	是否成功	0表示成功，其他为失败原因代码
+	msg	消息	“成功”，或失败原因
+	content	返回内容	JSONObject
+	content.uid	用户名	字符串
+	content.password	密码	字符串
+		
+
+	示例
+	192.168.0.137/api/register
+	{
+    	"status": "0",
+    	"msg": "",
+    	"content": {
+        	"uid": 3768,
+        	"username": "Ut1D6X",
+        	"password": "bwgrWjOz"
+    	}
+	}
+
+	 */
+	public MeishidarenUser quickRegister() throws IOException, ParserException, NoConnectException{
+		MeishidarenUser meishidarenUser = null;
+		Bundle bundle = new Bundle();
+//		bundle.putString("msisdn", msisdn);
+//		bundle.putString("psw", ""+psw);
+//		bundle.putString("lastModifyTime", lastModifyTime);
+		NetResult result =  this.doMeishidarenPost(REGISTER_PAGE, bundle);
+		
+		if(result.getErrorCode().equals("0")){
+			
+			meishidarenUser  = JsonParser.parseUserInfo(result.getRetContent()) ;
+			
+			
+		}else{
+			throw new ParserException(result.getErrorMessage() ) ;
+		}
+		return meishidarenUser;
+	}
+	
+	
+//	public NetResult doRegisterPost(String page, Bundle bundle) throws  NoConnectException, java.io.IOException, ParserException{
+//		StringBuilder sb = new StringBuilder(REGISTER_BASIC_URL);
+//		sb.append(page);
+//		String ret = null;
+//		NetResult result = new NetResult() ;
+//		ret = NetUtils.openUrl(sb.toString(), "post", bundle, context);
+////		Log.i(TAG, "ret = "+ret);
+//		Log.i(page, result.toString());
+//		result = JsonParser.parserRegisterResult(ret);
+//		if (result== null ) Log.e(TAG,"ERROR! result is null!");
+//		else Log.e(TAG,"result error message:"+result.getErrorMessage()+",result error code:"+result.getErrorCode());
+//		Log.i(TAG, "result = "+result.getRetContent());
+//		
+//		return result ;
+//	}
+	
+	/*
+	 *  1.2	登录
+	method：login
+
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+type	登录类型	0：普通登录
+1：新浪微博账号
+2：人人账号
+key	鉴权密钥	字符串
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONObject
+content.uid	用户名	字符串
+content.password	密码	字符串
+content.*	其他信息，例如昵称等	字符串
+说明：使用新浪微博等社交网络账号登录时，uid，password为空，只传key；返回值中uid和password 域表示与该社交网络账号绑定的用户名与密码。该用户名与密码本地保存，下一次使用社交网络账号登录时，直接使用这一对用户名、密码。
+
+示例
+192.168.0.137/api/login
+方法:POST
+参数 uid=3765 password=oe4hqqRx type=0
+{
+    "status": "0",
+    "msg": "",
+    "content": {
+        "uid": "3765",
+        "avatar":"/pic/user/default.jpg",
+        "sex": "火星人",
+        "birthday": "''",
+        "introduce": "''",
+        "cellphone": "''",
+        "weiboshare": "0",
+        "renrenshare": "0",
+        "focusnum": "0",
+        "fansnum": "0",
+        "username": "SYv6qP"
+    }
+}
+
+	 */
+	public MeishidarenUser toLogin(String username,String psw,
+			String type) throws IOException, ParserException, NoConnectException{
+		MeishidarenUser meishidarenUser = null;
+		Bundle bundle = new Bundle();
+		bundle.putString("username", username);
+		bundle.putString("password", psw);
+		bundle.putString("type", type);
+		NetResult result =  this.doMeishidarenPost(LOGIN_PAGE, bundle);
+		if(result.getErrorCode().equals("0")){
+			
+			meishidarenUser  = JsonParser.parseUserInfo(result.getRetContent()) ;
+			
+			
+		}else{
+			throw new ParserException(result.getErrorMessage() ) ;
+		}
+		return meishidarenUser;
+	}
+	
+//	public NetResult login(String pNum, String psw) throws  NoConnectException, ParserException, java.io.IOException {
+//		Bundle bundle = new Bundle();
+//		bundle.putString("uid", pNum);
+//		bundle.putString("password", psw);
+//		bundle.putString("type", "0");
+//		NetResult result =  this.doMeishidarenPost(LOGIN_PAGE, bundle);
+//		if(!result.getErrorCode().equals("0")){
+//			throw new ParserException(result.getErrorMessage() ) ;
+//		}
+//		return result ; 
+//	}
+	
+	
+	/*
+	 * 
+	 * 1.3	绑定社交网络帐号
+  method：bind
+完成普通账号与社交网络账号之间的绑定。
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+type	登录类型	1：新浪微博账号
+				2：人人账号
+				3:腾讯微博
+key	鉴权密钥	字符串
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	“”
+
+	  
+	  */
+	public NetResult bindWeibo(String uid,String psw,String type,
+			String key) throws IOException, ParserException, NoConnectException{
+		Bundle bundle = new Bundle();
+		bundle.putString("uid", uid);
+		bundle.putString("type", type);
+		bundle.putString("password", psw);
+		bundle.putString("key", key);
+		NetResult result =  this.doMeishidarenPost(BIND_WEIBO_PAGE, bundle);
+		if(!result.getErrorCode().equals("0")){
+			throw new ParserException(result.getErrorMessage() ) ;
+		}
+		
+		return result;
+	}
+	
+	public MeishidarenUser toSocailLogin(String type,String key) 
+			throws IOException, ParserException, NoConnectException{
+		MeishidarenUser meishidarenUser = null;
+		Bundle bundle = new Bundle();
+		bundle.putString("type", type);
+		bundle.putString("key", key);
+		NetResult result =  this.doMeishidarenPost(LOGIN_WEIBO_PAGE, bundle);
+		if(result.getErrorCode().equals("0")){
+			
+			meishidarenUser  = JsonParser.parseUserInfo(result.getRetContent()) ;
+			
+			
+		}else{
+			throw new ParserException(result.getErrorMessage() ) ;
+		}
+		return meishidarenUser;
+	}
+	
+	/*
+	 *1.4	修改用户信息
+	 *method: modifyUserInfo
+	 *调用参数
+	 *参数	描 述	格 式
+	 *uid=value	用户唯一ID	字符串
+	 *password=value	密码	字符串
+	 **=value	要修改的内容	字符串
+	 *返回项说明：
+	 *返回项	描 述	格 式
+	 *status	是否成功	0表示成功，其他为失败原因代码
+	 *msg	消息	“成功”，或失败原因
+	 *content	返回内容	“”
+	 *说明：调用参数部分uid 和password 是必选项，用于完成鉴权；
+	 *其余参数用于表示要修改的内容。
+	 */	
+	
+	public NetResult modifyUserInfo(String uid,String password,
+			HashMap<String, String> userinfo) throws IOException, ParserException, NoConnectException{
+		Bundle bundle = new Bundle();
+		bundle.putString("uid", uid);
+		bundle.putString("password", password);
+		Iterator iter = userinfo.entrySet().iterator(); 
+		while (iter.hasNext()) { 
+		    Map.Entry entry = (Map.Entry) iter.next(); 
+		    String key = (String) entry.getKey(); 
+		    String val = (String) entry.getValue(); 
+		    bundle.putString(key, val);
+		} 
+		
+		NetResult result =  this.doMeishidarenPost(MODIFY_USERINFO_PAGE, bundle);
+		if(!result.getErrorCode().equals("0")){
+			throw new ParserException(result.getErrorMessage() ) ;
+		}
+		return result;
+	}
+	/*
+	 *   1.5  修改密码
+	 *   method:resetPassword
+		参数说明:
+	   	  uid : 用户手机号码
+		  password : 旧密码----编码urlencode, utf8
+		  newpassword : 新密码----编码urlencode, utf8
+		返回结果:
+		  {
+			"status":0,    --成功返回0
+			"msg":"", --errorCode 不为0时,返回具体错误信息
+			"content":"", --""
+		  }
+	 */
+		public NetResult modifyPassword(String uid, String opsw, String npsw) throws NoConnectException, IOException, java.io.IOException, ParserException{
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+//			opsw = DigestAlgorithms.getMD5String(opsw);
+//			npsw = DigestAlgorithms.getMD5String(npsw);
+			bundle.putString("password", opsw);
+			bundle.putString("newpassword", npsw);
+			NetResult result =  this.doMeishidarenPost(MODIFY_PASSWORD_PAGE, bundle);
+			if(!result.getErrorCode().equals("0")){
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return result ; 
+		}
+		/*
+		 *   1.6	修改用户名
+		 *   method:resetPassword
+			参数说明:
+		   	  uid : 用户唯一ID
+			  password : 密码----编码urlencode, utf8
+			  username : 新的用户名--
+			返回结果:
+			  {
+				"status":0,    --成功返回0
+				"msg":"", --errorCode不为0时,返回具体错误信息
+				"content":"", --""
+			  }
+		 */
+		public NetResult modifyUsername(String uid, String password, String username) throws NoConnectException, IOException, java.io.IOException, ParserException{
+				Bundle bundle = new Bundle();
+				bundle.putString("uid", uid);
+				bundle.putString("password", password);
+				bundle.putString("newusername", username);
+				NetResult result =  this.doMeishidarenPost(MODIFY_USERNAME_PAGE, bundle);
+				if(!result.getErrorCode().equals("0")){
+					throw new ParserException(result.getErrorMessage() ) ;
+				}
+				return result ; 
+			}
+		/*
+		 *   2.1	上传图片
+Method：uploadPic
+
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+ InputStream	
+ filename	 图片名字
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONObject
+content.picid	图片的id	字符串
+		 */
+		
+		
+		
+		public HashMap<String, String> uploadImage(String uid, String password, InputStream is,String filename) throws NoConnectException, IOException, java.io.IOException, ParserException{
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("password", password);
+			String picid = "";
+			HashMap<String, String> resultMap = new HashMap<String, String>();
+			NetResult result =  this.doMeishidarenUpload(UPLOAD_PIC_PAGE, bundle,is,filename);
+			if(result.getErrorCode().equals("0")){	
+				picid  = JsonParser.parseUploadResult(result.getRetContent()) ;	
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			resultMap.put("picid", picid);
+			return resultMap ; 
+		}
+		
+		
+		public NetResult uploadAvatar(String uid, String password, InputStream is,String filename) throws NoConnectException, IOException, java.io.IOException, ParserException{
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("password", password);
+//			String picid = "";
+//			HashMap<String, String> resultMap = new HashMap<String, String>();
+			NetResult result =  this.doMeishidarenPic(UPLOAD_AVA_PAGE, bundle,is,filename);
+//			if(result.getErrorCode().equals("0")){	
+//				picid  = JsonParser.parseUploadResult(result.getRetContent()) ;	
+//			}else{
+//				throw new ParserException(result.getErrorMessage() ) ;
+//			}
+//			resultMap.put("status", "0");
+			return result ; 
+		}
+		
+		
+		
+		
+		/*
+		 *   2.2	发布美食微博
+		 *   Method：toTweet
+
+	调用参数
+	参数	描 述	格 式
+picid	图片id	字符串，多张用分号;隔开
+uid	用户唯一ID	字符串
+password	密码	字符串
+text	文本内容	字符串
+type	类别	字符串，广场用
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	“”
+
+		 */
+		public NetResult toTweet(String uid, String password, String [] picid,
+				String textContent,String type,String share,
+				String ingredient,String staple,String accessories,String foodname,
+				String dateline,String location,String latitude,String longitude) 
+				throws NoConnectException, IOException, java.io.IOException, ParserException{
+				Bundle bundle = new Bundle();
+				bundle.putString("uid", uid);
+				bundle.putString("share", share);
+				bundle.putString("password", password);
+				String pics = picid[0];
+				for (int i=1;i<picid.length;i++)  pics +=";"+picid[i];
+				bundle.putString("picid", pics); 
+				bundle.putString("description", textContent); 
+				bundle.putString("type", type); 
+				
+				bundle.putString("ingredient", ingredient); 
+				bundle.putString("staple", staple); 
+				bundle.putString("accessories", accessories); 
+				bundle.putString("foodname", foodname); 
+				
+				bundle.putString("dateline", dateline); 
+				bundle.putString("location", location); 
+				bundle.putString("latitude", latitude); 
+				bundle.putString("longitude", longitude); 
+				
+				NetResult result =  this.doMeishidarenPost(TWEET_PAGE, bundle);
+				if(!result.getErrorCode().equals("0")){
+					throw new ParserException(result.getErrorMessage() ) ;
+				}
+				return result ; 
+		}
+		/*
+		 *   2.3	加入收藏
+Method：addFavorite
+
+调用参数
+参数	描 述	格 式
+itemid	美食itemid	字符串
+uid	用户唯一ID	字符串
+password	密码	字符串
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	“”
+
+
+		 */
+		public NetResult addFavorite(String uid, String password, String tweetid) throws NoConnectException, IOException, java.io.IOException, ParserException{
+				Bundle bundle = new Bundle();
+				bundle.putString("uid", uid);
+				bundle.putString("password", password);
+				bundle.putString("tweetid", tweetid); 
+				NetResult result =  this.doMeishidarenPost(TWEET_PAGE, bundle);
+				if(!result.getErrorCode().equals("0")){
+					throw new ParserException(result.getErrorMessage() ) ;
+				}
+				return result ; 
+		}
+		
+		
+		/*
+		 *   2.4	返回收藏列表
+Method：getFavorites
+
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONObject
+content.list	收藏列表	JSONArray
+content.list.text	美食Item的文字描述	字符串
+content.list.pic	美食Item对应的图片地址	url
+
+		 */
+				public ArrayList<HashMap<String, String>> getFavorites(String uid,String pagenum) throws IOException, ParserException, NoConnectException{
+					ArrayList<HashMap<String, String>>  tweets = null;
+					Bundle bundle = new Bundle();
+					bundle.putString("uid", uid);
+					bundle.putString("password", pagenum);
+					NetResult result =  this.doGetFavoritesPost(GET_FAV_PAGE, bundle);
+					
+					if(result.getErrorCode().equals("0")){
+						
+						tweets  = JsonParser.parseUserTweets(result.getRetContent()) ;
+						
+						
+					}else{
+						throw new ParserException(result.getErrorMessage() ) ;
+					}
+					return tweets;
+				}
+				
+				
+				public NetResult doGetFavoritesPost(String page, Bundle bundle) throws  NoConnectException, java.io.IOException, ParserException{
+					StringBuilder sb = new StringBuilder(Meishidaren_BASIC_URL);
+					sb.append(page);
+					String ret = null;
+					NetResult result = new NetResult() ;
+					ret = NetUtils.openUrl(sb.toString(), "post", bundle, context);
+//					Log.i(TAG, "ret = "+ret);
+					Log.i(page, result.toString());
+					result = JsonParser.parseNetResult(ret);
+					if (result== null ) Log.e(TAG,"ERROR! result is null!");
+					else Log.e(TAG,"result error message:"+result.getErrorMessage()+",result error code:"+result.getErrorCode());
+					Log.i(TAG, "result = "+result.getRetContent());
+					
+					return result ;
+				}
+
+				/*
+				 *   3.1.	加关注
+				 *   Method：addFocus
+					参数说明:
+				   	  uid : 用户唯一ID
+					  password : 旧密码----编码urlencode, utf8
+					  focusuid : 被关注用户的ID
+					返回结果:
+					  {
+						"status":0,    --成功返回0
+						"msg":"", --errorCode 不为0时,返回具体错误信息
+						"content":"", --""
+					  }
+				 */
+					public NetResult addFocus(String uid, String psw, String focusuid) throws NoConnectException, IOException, java.io.IOException, ParserException{
+						Bundle bundle = new Bundle();
+						bundle.putString("uid", uid);
+						bundle.putString("password",  psw);
+						bundle.putString("focusuid", focusuid);
+						NetResult result =  this.doMeishidarenPost(ADD_FOCUS_PAGE, bundle);
+						if(!result.getErrorCode().equals("0")){
+							throw new ParserException(result.getErrorMessage() ) ;
+						}
+						return result ; 
+					}
+					
+					
+					public NetResult cancleFocus(String uid, String psw, String focusuid) throws NoConnectException, IOException, java.io.IOException, ParserException{
+						Bundle bundle = new Bundle();
+						bundle.putString("uid", uid);
+						bundle.putString("password",  psw);
+						bundle.putString("focusuid", focusuid);
+						NetResult result =  this.doMeishidarenPost("cancleFocus", bundle);
+						if(!result.getErrorCode().equals("0")){
+							throw new ParserException(result.getErrorMessage() ) ;
+						}
+						return result ; 
+					}
+				
+					/*
+					 *   3.2.	返回用户信息
+Method：getUserInfo
+
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+userid	查询的用户ID	字符串
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONObject
+content.username	昵称	字符串
+content.gender	性别	字符串
+content.intro	自我介绍	字符串
+content.focusnum	关注数	字符串
+content.followernum	粉丝数	字符串
+content.tweetnum	美食微博数	字符串
+content.*	其他	字符串
+
+
+
+					 */		
+					
+					public MeishidarenUser getUserInfo(String uid,String psw,
+							String userid) throws IOException, ParserException, NoConnectException{
+						MeishidarenUser meishidarenUser = null;
+						Bundle bundle = new Bundle();
+						bundle.putString("uid", uid);
+						bundle.putString("password", psw);
+						bundle.putString("userid", userid);
+						NetResult result =  this.doMeishidarenPost(GET_USERINFO_PAGE, bundle);
+						if(result.getErrorCode().equals("0")){
+							
+							meishidarenUser  = JsonParser.parseUserInfo(result.getRetContent()) ;
+							
+							
+						}else{
+							throw new ParserException(result.getErrorMessage() ) ;
+						}
+						return meishidarenUser;
+					}
+					/*
+					 *   3.3.	返回用户美食微博
+Method：getUserTweets
+
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+userid	关注用户的标识符	字符串，传0的话，表明返回自己关注的用户所发美推，传其他id表明返回该id所发的美推
+num	页数	数目 默认20
+tweetid	美食微博id	updateway='more'传最后一次请求的最后一个微博id(第一次值为0）
+	updateway='refresh'传第一次请求的第一个id
+updateway	更新方式	'more' 或 'refresh'
+
+返回项说明：
+		
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	 JSONArray
+content.usename	美食item发布者用户名	
+content.uid	美食item发布者id	字符串
+content.userpic	美食item发布者头像地址	url
+content.tweetid	美食id	字符串
+content.description	美食Item的文字描述	字符串
+content.picurl	美食Item对应的图片地址	url
+content.commentnum	美食Item对应的评论数	字符串
+content.likenum	美食Item的文字赞美数	字符串
+content.dateline	美食Item发布时间	20120330172800
+
+
+
+					 */
+		public ArrayList<HashMap<String, String>> getUserTweets(String uid,String pwd,String userid,String tweetid,String updateway,String type) throws IOException, ParserException, NoConnectException{
+			ArrayList<HashMap<String, String>>  tweets = null;
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("num", "500");
+			bundle.putString("password", pwd);
+			bundle.putString("userid", userid);
+			bundle.putString("tweetid", tweetid);
+			bundle.putString("updateway", updateway);
+			bundle.putString("type", type);
+			NetResult result =  this.doMeishidarenListPost(GET_TWEET_PAGE, bundle);
+			
+			if(result.getErrorCode().equals("0")){
+				
+				tweets  = JsonParser.parseUserTweets(result.getRetContent()) ;
+				
+				
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return tweets;
+		}
+		
+	/*
+	 * 4.2.	返回明星美食微博
+Method：getTopTweets
+
+调用参数
+参数	描 述	格 式
+uid	自己的标识符	字符串
+password	密码	字符串
+num	数目	数量，默认20
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONObject
+content.usename	美食item发布者用户名	
+content.uid	美食item发布者id	字符串
+content.userpic	美食item发布者头像地址	url
+content.tweetid	美食id	字符串
+content.type	类别	字符串，便当类型 0 1 2 3 
+content.ingredient	主料	字符串
+content.staple
+主食	字符串
+content.accessories	辅料	字符串
+content.location	位置	字符串
+content.latitude	经度	字符串
+content .longitude	纬度	字符串
+content.foodname	菜名	字符串
+content.description	美食Item的文字描述	字符串
+content.picurl	美食Item对应的图片地址	url
+content.commentnum	美食Item对应的评论数	字符串
+content.goodnum	美食Item的文字赞美数	字符串
+content.dateline	美食Item发布时间	20120330172800
+	
+	 */
+		public ArrayList<HashMap<String, String>> getTopTweets(String uid,String pwd,String userid,String tweetid,String updateway,String num) throws IOException, ParserException, NoConnectException{
+			ArrayList<HashMap<String, String>>  tweets = null;
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("num", num);
+			bundle.putString("password", pwd);
+			bundle.putString("userid", userid);
+			bundle.putString("tweetid", tweetid);
+			bundle.putString("updateway", updateway);
+//			bundle.putString("type", type);
+			NetResult result =  this.doMeishidarenListPost(GET_TOP_PAGE, bundle);
+			
+			if(result.getErrorCode().equals("0")){
+				
+				tweets  = JsonParser.parseUserTweets(result.getRetContent()) ;
+				
+				
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return tweets;
+		}
+		
+		/*
+		 * 3.18.	取得我推荐的美食
+Method：getMyShares
+
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+updateway	更新方式	字符串，'more' 或 'refresh'
+num	获取数量	每次返回20条
+id	每次获取的最后一条id	updateway='more'传最后一次请求的最后一个消息id(第一次值为0）
+updateway='refresh'传第一次请求的第一个id
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONArray
+content.id	id	字符串
+content.dateline	消息的时间	字符串
+content.commentcontent	消息的内容	字符串，只有是评论的时候才不为空
+Content.picurl	推荐美食的时候美食图片url	只有是推荐或者是赞的时候才不为空
+Content.foodname	美食的名称	
+content. sharetonames	被推荐的用户	字符串，用分号分隔
+content.tweetid	美食微博的id	字符串
+content.description	推荐美食的描述	字符串，
+
+		 */
+		
+		public ArrayList<HashMap<String, String>> getMyShares(String uid,String pwd,String tweetid,String updateway) throws IOException, ParserException, NoConnectException{
+			ArrayList<HashMap<String, String>>  tweets = null;
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("num", "500");
+			bundle.putString("password", pwd);
+			bundle.putString("id", tweetid);
+			bundle.putString("updateway", updateway);
+//			bundle.putString("type", type);
+			NetResult result =  this.doMeishidarenListPost(GET_MY_SHARE, bundle);
+			
+			if(result.getErrorCode().equals("0")){
+				
+				tweets  = JsonParser.parseUserTweets(result.getRetContent()) ;
+				
+				
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return tweets;
+		}
+		
+//		3.4.	根据微博id返回相应美食微博
+//		Method：showOneTweet
+//
+//		调用参数
+//		参数	描 述	格 式
+//		uid	用户唯一ID	字符串
+//		password	密码	字符串
+//		tweetid	美食微博id	
+//				
+//
+//		返回项说明：
+//				
+//		status	是否成功	0表示成功，其他为失败原因代码
+//		msg	消息	“成功”，或失败原因
+//		content	返回内容	 JSONArray
+//		content.usename	美食item发布者用户名	
+//		content.uid	美食item发布者id	字符串
+//		content.userpic	美食item发布者头像地址	url
+//		content.tweetid	美食id	字符串
+//		content.type	类别	字符串，便当类型 0 1 2 3 
+//		content.ingredient	主料	字符串
+//		content.staple
+//		主食	字符串
+//		content.accessories	辅料	字符串
+//		content.foodname	菜名	字符串
+//		content.description	美食Item的文字描述	字符串
+//		content.picurl	美食Item对应的图片地址	url
+//		content.commentnum	美食Item对应的评论数	字符串
+//		content.likenum	美食Item的文字赞美数	字符串
+//		content.dateline	美食Item发布时间	20120330172800
+//		content.islike	当前用户是否赞过	0否 1 是
+
+		public ArrayList<HashMap<String, String>> getOneTweets(String uid,String pwd,String tweetid) throws IOException, ParserException, NoConnectException{
+			ArrayList<HashMap<String, String>>  tweets = null;
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("password", pwd);
+			bundle.putString("tweetid", tweetid);
+			NetResult result =  this.doMeishidarenListPost(GET_ONE_TWEET, bundle);
+			
+			if(result.getErrorCode().equals("0")){
+				
+				tweets  = JsonParser.parseOneTweets(result.getRetContent()) ;
+				
+				
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return tweets;
+		}
+		
+		
+		public ArrayList<HashMap<String, String>> getUserGoodTweets(String uid,String pwd,String userid,String tweetid,String updateway,String type) throws IOException, ParserException, NoConnectException{
+			ArrayList<HashMap<String, String>>  tweets = null;
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("password", pwd);
+			bundle.putString("userid", userid);
+			bundle.putString("tweetid", tweetid);
+			bundle.putString("updateway", updateway);
+			bundle.putString("type", type);
+			NetResult result =  this.doMeishidarenListPost(GET_GOOD_TWEET_PAGE, bundle);
+			
+			if(result.getErrorCode().equals("0")){
+				
+				tweets  = JsonParser.parseUserTweets(result.getRetContent()) ;
+				
+				
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return tweets;
+		}
+		
+	/*	
+	 * 3.4.	取得粉丝列表
+	 * Method：getUserFollowers
+	 * 
+	 * 调用参数
+		参数	描 述	格 式
+		uid	用户唯一ID	字符串
+		password	密码	字符串
+		who	取粉丝列表用户id	
+		num	每次取得数目	默认20
+		id	每次粉丝列表取回的最后一个id	第一次取是0
+
+		返回项说明：
+		返回项	描 述	格 式
+		status	是否成功	0表示成功，其他为失败原因代码
+		msg	消息	“成功”，或失败原因
+		content	返回内容	 JSONArray
+		content.uid	粉丝的id	字符串
+		content. username	粉丝的用户名	字符串
+		content. avatar	粉丝的头像	url	
+		content. tweet	粉丝的最近一条微博文字	字符串
+
+	 */
+	public ArrayList<UserSimple> getUserFollowers(String uid,String pwd,String who,String num,String lastuid) throws IOException, ParserException, NoConnectException{
+		ArrayList<UserSimple>  followers = null;
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("password", pwd);
+			bundle.putString("who", who);
+			bundle.putString("num", num);
+			bundle.putString("id", lastuid);
+			
+			NetResult result =  this.doMeishidarenListPost(GET_FOLLOWERS_PAGE, bundle);
+			
+			if(result.getErrorCode().equals("0")){
+				
+				followers  = JsonParser.parseUserSimple(result.getRetContent()) ;
+				
+				
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return followers;
+		}	
+	
+	/*
+	 * 3.4.	返回明星用户信息
+Method：getTopUsers
+
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+num	数量	
+
+返回项说明：
+  
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONObject
+content.username	昵称	字符串
+Content.isvip	Vip用户	0 不是 1 是
+content.isresetpassword	是否重置秘密	0 代表没有，1代表重置过
+content.email	邮箱	字符串
+content.sex	性别	字符串
+content.introduce	自我介绍	字符串
+content.birthday	生日	字符串
+content.constellation	星座	字符串
+content.area	地区	字符串
+content.sina	新浪微博主页地址	字符串
+content.renren	人人主页地址	字符串
+content.weixin	微信帐号	字符串
+content.cellphone	手机号码	字符串
+content.focusnum	关注数	字符串
+content.fansrnum	粉丝数	字符串
+content.tweetnum	美食微博数	字符串
+content.uid	用户uid	字符串
+Content.avatar	用户头像	url
+content.weiboshare	微博分享	0代表未绑定不分享，1代表绑定不分享，2代表绑定且设置分享
+Content.isfocus	我是否关注他	0代表未关注，1代表关注,2代表是自己，不应该显示是否关注
+
+	 */
+	public ArrayList<UserSimple> getTopUsers(String uid,String pwd,String who,String num,String lastuid) throws IOException, ParserException, NoConnectException{
+		ArrayList<UserSimple>  followers = null;
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("password", pwd);
+//			bundle.putString("who", who);
+			bundle.putString("num", num);
+//			bundle.putString("id", lastuid);
+			
+			NetResult result =  this.doMeishidarenListPost(GET_TOP_USERS, bundle);
+			
+			if(result.getErrorCode().equals("0")){
+				
+				followers  = JsonParser.parseUserSimple(result.getRetContent()) ;
+				
+				
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return followers;
+		}
+		
+	/*	
+	 * 3.5.	取得关注列表
+	 * Method：getUserFocus
+	 * 
+	 * 调用参数
+参数	描 述	格 式
+uid	用户id	字符串
+password	密码	字符串
+who	取关注列表用户id	
+num	每次取得数目	默认20
+id	每次关注列表取回的最后一个id	第一次取值是0
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONArray
+content. uid	粉丝的id	字符串
+content. avatar	粉丝的头像	url
+content. username	粉丝的用户名	字符串
+content.dateline	关注时间	
+content.id	关注id	
+content. tweet	粉丝的最近一条微博文字	字符串
+
+
+	 */
+	public ArrayList<UserSimple> getUserFocus(String uid,String pwd,String who,String num,String lastuid) throws IOException, ParserException, NoConnectException{
+		ArrayList<UserSimple>  followers = null;
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("password", pwd);
+			bundle.putString("who", who);
+			bundle.putString("num", num);
+			bundle.putString("id", lastuid);
+			
+			NetResult result =  this.doMeishidarenListPost(GET_FOCUSERS_PAGE, bundle);
+			
+			if(result.getErrorCode().equals("0")){
+				
+				followers  = JsonParser.parseUserSimple(result.getRetContent()) ;
+				
+				
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return followers;
+		}	
+	
+	
+//	1.5	获得社交好友
+//	method：socialFriends
+//
+//	调用参数
+//	参数	描 述	格 式
+//	username	用户名	字符串
+//	password	密码	字符串
+//
+//	返回项说明：
+//	返回项	描 述	格 式
+//	status	是否成功	0表示成功，其他为失败原因代码
+//	msg	消息	“成功”，或失败原因
+//	content	返回内容	JSONObject
+//	content.uid	社交账号id	字符串
+//	content.username	社交账号用户名	字符串
+//	Content.avatar	社交网络的图片	备注：这个图像url不是本地，而是社交网络上的
+	public ArrayList<UserSimple> getWeiboFocus(String uid,String pwd,String who,String num,String lastuid) throws IOException, ParserException, NoConnectException{
+		ArrayList<UserSimple>  followers = null;
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("password", pwd);
+//			bundle.putString("who", who);
+//			bundle.putString("num", num);
+//			bundle.putString("id", lastuid);
+			
+			NetResult result =  this.doMeishidarenListPost(GET_WEIBO_FRI, bundle);
+			
+			if(result.getErrorCode().equals("0")){
+				
+				followers  = JsonParser.parseUserSimple(result.getRetContent()) ;
+				
+				
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return followers;
+		}
+	
+	/*
+	 *   3.6.	评论
+	 *   Method：doComment
+	 *    
+		参数说明:
+	   	  uid : 用户唯一ID
+	   	  password	密码	字符串
+		  comment	评论内容	字符串
+		  tweetid	评论的美食微博id	字符串
+		返回结果:
+		  {
+			"status":0,    --成功返回0
+			"msg":"", --errorCode 不为0时,返回具体错误信息
+			"content":"", --""
+		  }
+	 */
+		public NetResult doComment(String uid, String psw, String comment,String tweetid) throws NoConnectException, IOException, java.io.IOException, ParserException{
+			Bundle bundle = new Bundle();
+			bundle.putString("uid", uid);
+			bundle.putString("password",  psw);
+			bundle.putString("comment", comment);
+			bundle.putString("tweetid", tweetid);
+			NetResult result =  this.doMeishidarenPost(DO_COMMENT_PAGE, bundle);
+			if(!result.getErrorCode().equals("0")){
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return result ; 
+		}
+		
+		/*	
+		 * 3.7.	获取某条美食微博评论列表
+Method：getComments
+
+调用参数
+参数	描 述	格 式
+uid	自己的id	字符串
+password	密码	字符串
+tweetid	美食微博id	字符串
+num	获取数量	每次返回20条
+commentid	每次获取的最后一条评论	第一次请求默认为0
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONArray
+Content.username	评论用户名	
+content. uid	评论用户id	字符串
+content. userpic	评论的头像地址	url
+content. commentid	评论的id	字符串
+content. comment	评论的内容	字符串
+Content.dateline	评论时间	
+
+
+
+		 */
+		public ArrayList<Comment> getComments(String uid,String pwd,String tweetid,String num,String lastcommentid) throws IOException, ParserException, NoConnectException{
+			ArrayList<Comment>  comments = null;
+				Bundle bundle = new Bundle();
+				bundle.putString("uid", uid);
+				bundle.putString("password", pwd);
+				bundle.putString("tweetid", tweetid);
+				bundle.putString("num", num);
+				bundle.putString("commentid", lastcommentid);
+				
+				NetResult result =  this.doMeishidarenListPost(GET_COMMENTS_PAGE, bundle);
+				
+				if(result.getErrorCode().equals("0")){
+					
+					comments  = JsonParser.parseComments(result.getRetContent()) ;
+					
+					
+				}else{
+					throw new ParserException(result.getErrorMessage() ) ;
+				}
+				return comments;
+			}	
+		/*
+		 *   3.8.	赞
+		 *   Method：doGood
+		 *    
+			参数说明:
+		   	  uid : 用户唯一ID
+		   	  password	密码	字符串
+			  tweetid	评论的美食微博id	字符串
+			返回结果:
+			  {
+				"status":0,    --成功返回0
+				"msg":"", --errorCode 不为0时,返回具体错误信息
+				"content":"", --""
+			  }
+		 */
+			public NetResult doLike(String uid, String psw, String tweetid) throws NoConnectException, IOException, java.io.IOException, ParserException{
+				Bundle bundle = new Bundle();
+				bundle.putString("uid", uid);
+				bundle.putString("password",  psw);
+				bundle.putString("tweetid", tweetid);
+				NetResult result =  this.doMeishidarenPost(DO_LIKE_PAGE, bundle);
+				if(!result.getErrorCode().equals("0")&&!result.getErrorCode().equals("1")){
+					throw new ParserException(result.getErrorMessage() ) ;
+				}
+				return result ; 
+			}
+			
+			
+			public NetResult cancelLike(String uid, String psw, String tweetid) throws NoConnectException, IOException, java.io.IOException, ParserException{
+				Bundle bundle = new Bundle();
+				bundle.putString("uid", uid);
+				bundle.putString("password",  psw);
+				bundle.putString("tweetid", tweetid);
+				NetResult result =  this.doMeishidarenPost(CANCEL_LIKE_PAGE, bundle);
+				if(!result.getErrorCode().equals("0")&&!result.getErrorCode().equals("1")){
+					throw new ParserException(result.getErrorMessage() ) ;
+				}
+				return result ; 
+			}
+			
+			/*	3.9.	取得赞的列表
+			 *调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+tweetid	美食微博id	字符串
+num	获取数量	每次返回20条
+goodtid	每次获取的最后一条赞	第一次请求默认为0
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONArray
+content.goodid	赞的id	字符串
+content. uid	发出者	字符串
+Content.username	赞的用户名	
+content. userpic	赞的头像地址	url
+Content.dateline	赞的时间	
+
+
+			 */
+			public ArrayList<Comment> getLikes(String uid,String pwd,String tweetid,String num,String lastcommentid) throws IOException, ParserException, NoConnectException{
+				ArrayList<Comment>  comments = null;
+					Bundle bundle = new Bundle();
+					bundle.putString("uid", uid);
+					bundle.putString("password", pwd);
+					bundle.putString("tweetid", tweetid);
+					bundle.putString("num", num);
+					bundle.putString("commentid", lastcommentid);
+					
+					NetResult result =  this.doMeishidarenListPost(GET_LIKES_PAGE, bundle);
+					
+					if(result.getErrorCode().equals("0")){
+						
+						comments  = JsonParser.parseLikes(result.getRetContent()) ;
+						
+						
+					}else{
+						throw new ParserException(result.getErrorMessage() ) ;
+					}
+					return comments;
+				}	
+			/*
+			 *   3.10.	取得消息的列表
+Method：getMessages
+
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+updateway	更新方式	字符串，'more' 或 'refresh'
+num	获取数量	每次返回20条
+msgid	每次获取的最后一条赞	updateway='more'传最后一次请求的最后一个消息id(第一次值为0）
+updateway='refresh'传第一次请求的第一个id
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONArray
+content.msgid	消息的id	字符串
+content.fromuid	消息发出者	字符串
+content.fromusername	发出者的用户名	字符串
+content.fromuserpic	发出者的头像地址	url
+content.dateline	消息的时间	字符串
+content.commentcontent	消息的内容	字符串，赞的时候为空
+content.msgtype	消息的分类	字符串，0为评论，1为赞
+content.tweetid	美食微博的id	字符串
+content.tweetdescription	美食微博的文本信息	字符串
+
+
+			 */
+public ArrayList<TweetMsg> getMessages(String uid,String pwd,String msgid,String updateway) throws IOException, ParserException, NoConnectException{
+	
+	ArrayList<TweetMsg>  tweetMsgs = null;
+	Bundle bundle = new Bundle();
+	bundle.putString("uid", uid);
+	bundle.putString("password", pwd);
+	bundle.putString("msgid", msgid);
+	bundle.putString("num", "200");
+	bundle.putString("updateway", updateway);
+	NetResult result =  this.doMeishidarenListPost(GET_MSG_PAGE, bundle);
+	
+	if(result.getErrorCode().equals("0")){
+		
+		tweetMsgs  = JsonParser.parseMessage(result.getRetContent()) ;
+		
+		
+	}else{
+		throw new ParserException(result.getErrorMessage() ) ;
+	}
+	return tweetMsgs;
+}		
+			/*
+			 *   4.1.	返回分类美食微博
+Method：getCategoryTweets
+
+调用参数
+参数	描 述	格 式
+uid	自己的标识符	字符串
+password	密码	字符串
+type	分类	字符串，美食微博类别
+num	数目	数量，默认20
+tweetid	美食微博id	updateway='more'传最后一次请求的最后一个微博id(第一次值为0）
+					updateway='refresh'传第一次请求的第一个id
+updateway	更新方式	'more' 或 'refresh' 
+
+返回项说明：
+返回项	描 述	格 式
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+content	返回内容	JSONObject
+content.usename	美食item发布者用户名	
+content.uid	美食item发布者id	字符串
+content.userpic	美食item发布者头像地址	url
+content.tweetid	美食id	字符串
+content.description	美食Item的文字描述	字符串
+content.picurl	美食Item对应的图片地址	url
+content.commentnum	美食Item对应的评论数	字符串
+content.likenum	美食Item的文字赞美数	字符串
+content.dateline	美食Item发布时间	20120330172800
+
+			 */
+public ArrayList<HashMap<String, String>> getCategoryTweets(String uid,String pwd,String type, String userid,String tweetid,String updateway) throws IOException, ParserException, NoConnectException{
+	ArrayList<HashMap<String, String>>  tweets = null;
+	Bundle bundle = new Bundle();
+	bundle.putString("uid", uid);
+	bundle.putString("password", pwd);
+	bundle.putString("userid", userid);
+	bundle.putString("type", type);
+	bundle.putString("tweetid", tweetid);
+	bundle.putString("updateway", updateway);
+	NetResult result =  this.doMeishidarenListPost(GET_CAT_TWEET_PAGE, bundle);
+	
+	if(result.getErrorCode().equals("0")){
+		
+		tweets  = JsonParser.parseUserTweets(result.getRetContent()) ;
+		
+		
+	}else{
+		throw new ParserException(result.getErrorMessage() ) ;
+	}
+	return tweets;
+}		
+		
+/*
+ *  3.19.	搜索
+Method：doSearch
+
+
+调用参数
+参数	描 述	格 式
+uid	用户唯一ID	字符串
+password	密码	字符串
+keyword	搜索关键词	字符串
+pagenum	第几页	从0开始
+
+返回项说明：
+
+status	是否成功	0表示成功，其他为失败原因代码
+msg	消息	“成功”，或失败原因
+totalpagenum	总页数	数字
+totalnum	结果总数	数字
+content	返回内容	 JSONArray
+content.usename	美食item发布者用户名	
+content.uid	美食item发布者id	字符串
+content.userpic	美食item发布者头像地址	url
+content.tweetid	美食id	字符串
+content.description	美食Item的文字描述	字符串
+content.picurl	美食Item对应的图片地址	url
+content.commentnum	美食Item对应的评论数	字符串
+content.likenum	美食Item的文字赞美数	字符串
+content.dateline	美食Item发布时间	20120330172800 
+content.islike	当前用户是否赞过	0否 1 是
+ */
+
+public ArrayList<HashMap<String, String>> doSearchFood(String uid,String pwd,String type,String keyword,String pagenum,String userid,String num) 
+		throws IOException, ParserException, NoConnectException{
+	
+	ArrayList<HashMap<String, String>>  tweets = null;
+	Bundle bundle = new Bundle();
+	bundle.putString("uid", uid);
+	bundle.putString("password", pwd);
+	bundle.putString("keyword", keyword);
+	bundle.putString("tweetid", pagenum);
+	bundle.putString("type", type);
+	bundle.putString("userid",userid);
+	bundle.putString("num", num);
+	
+	HashMap<String,String> result =  this.doSearchPost(DO_SEARCH, bundle);
+//	ShortCut.totalnum = Integer.parseInt(result.get("totalnum"));
+//	ShortCut.totalpagenum = Integer.parseInt(result.get("totalpagenum"));
+	System.out.println("关键词是++++++++++++++++="+keyword);
+	if(result.get("status").equals("0")){
+		  tweets  = JsonParser.parseSearchTweets(result.get("content")) ;
+	}else{
+		throw new ParserException(result.get("msg") ) ;
+	}
+	return tweets;
+}
+
+public ArrayList<UserSimple> doSearchUser(String uid,String pwd,String type,String keyword,String pagenum,String userid,String num) 
+		throws IOException, ParserException, NoConnectException{
+	
+	ArrayList<UserSimple>  users = null;
+	Bundle bundle = new Bundle();
+	bundle.putString("uid", uid);
+	bundle.putString("password", pwd);
+	bundle.putString("keyword", keyword);
+	bundle.putString("tweetid", pagenum);
+	bundle.putString("type", type);
+	bundle.putString("userid",userid);
+	bundle.putString("num", num);
+	
+	HashMap<String,String> result =  this.doSearchPost(DO_SEARCH, bundle);
+//	ShortCut.totalnum = Integer.parseInt(result.get("totalnum"));
+//	ShortCut.totalpagenum = Integer.parseInt(result.get("totalpagenum"));
+	System.out.println("关键词是++++++++++++++++="+keyword);
+	if(result.get("status").equals("0")){
+		  users  = JsonParser.parseSearchUsers(result.get("content")) ;
+	}else{
+		throw new ParserException(result.get("msg") ) ;
+	}
+	return users;
+}
+
+//3.11.	取得某人赞的美食列表
+//Method：getUserGoodSweets
+//
+//调用参数
+//参数	描 述	格 式
+//uid	用户唯一ID	字符串
+//password	密码	字符串
+//userid	用户id	如果是获取自己赞的列表，这个可以为空
+//num	获取数量	每次返回20条
+//		
+//tweetid	美食微博id	updateway='more'传最后一次请求的最后一个微博id(第一次值为0）
+//updateway='refresh'传第一次请求的第一个id
+//		
+//updateway	更新方式	'more' 或 'refresh'
+//		
+//
+//返回项说明：
+//返回项	描 述	格 式
+//status	是否成功	0表示成功，其他为失败原因代码
+//msg	消息	“成功”，或失败原因
+//content	返回内容	JSONArray
+//content.usename	美食item发布者用户名	
+//content.uid	美食item发布者id	字符串
+//content.userpic	美食item发布者头像地址	url
+//content.tweetid	美食id	字符串
+//content.type	类别	字符串，便当类型 0 1 2 3 
+//content.ingredient	主料	字符串
+//content.staple
+//主食	字符串
+//content.accessories	辅料	字符串
+//content.foodname	菜名	字符串
+//content.description	美食Item的文字描述	字符串
+//content.picurl	美食Item对应的图片地址	url
+//content.commentnum	美食Item对应的评论数	字符串
+//content.likenum	美食Item的文字赞美数	字符串
+//content.dateline	美食Item发布时间	20120330172800
+//content.islike	当前用户是否赞过	0否 1 是
+
+public ArrayList<HashMap<String, String>> getUserGoodSweets(String uid,String pwd,String userid,String tweetid,String updateway,String num) throws IOException, ParserException, NoConnectException{
+	ArrayList<HashMap<String, String>>  tweets = null;
+	Bundle bundle = new Bundle();
+	bundle.putString("uid", uid);
+	bundle.putString("password", pwd);
+	bundle.putString("userid", userid);
+	bundle.putString("tweetid", tweetid);
+	bundle.putString("updateway", updateway);
+	bundle.putString("num", "20");
+	NetResult result =  this.doMeishidarenListPost(GET_USER_GOOD, bundle);
+	
+	if(result.getErrorCode().equals("0")){
+		tweets  = JsonParser.parseUserTweets(result.getRetContent()) ;
+	}else{
+		throw new ParserException(result.getErrorMessage() ) ;
+	}
+	return tweets;
+}
+
+//3.12.	取得消息的列表
+//Method：getMessages
+//
+//调用参数
+//参数	描 述	格 式
+//uid	用户唯一ID	字符串
+//password	密码	字符串
+//updateway	更新方式	字符串，'more' 或 'refresh'
+//num	获取数量	每次返回20条
+//msgid	每次获取的最后一条赞	updateway='more'传最后一次请求的最后一个消息id(第一次值为0）
+//updateway='refresh'传第一次请求的第一个id
+//
+//返回项说明：
+//返回项	描 述	格 式
+//status	是否成功	0表示成功，其他为失败原因代码
+//msg	消息	“成功”，或失败原因
+//content	返回内容	JSONArray
+//content.msgid	消息的id	字符串
+//content.fromuid	消息发出者	字符串
+//content.fromusername	发出者的用户名	字符串
+//content.fromuserpic	发出者的头像地址	url
+//content.dateline	消息的时间	字符串
+//content.commentcontent	消息的内容	字符串，只有是评论的时候才不为空赞的时候为空
+//Content.tweetpicurl	推荐美食的时候美食图片url	只有是推荐或者是赞的时候才不为空
+//Content.foodname	美食的名称	
+//content.msgtype	消息的分类	字符串，0为评论，1为赞，2为关注 3为推荐@
+//content.tweetid	美食微博的id	字符串
+//content.sharetweetdescription	推荐美食的描述美食微博的文本信息	字符串，只有是推荐时才不为空
+public ArrayList<TweetMsg> getMessages(String uid,String pwd,String userid,String num,String updateway,String msgid) throws IOException, ParserException, NoConnectException{
+	ArrayList<TweetMsg>  message = null;
+	Bundle bundle = new Bundle();
+	bundle.putString("uid", uid);
+	bundle.putString("password", pwd);
+	bundle.putString("num", num);
+	bundle.putString("updateway", updateway);
+	bundle.putString("msgid", msgid);
+	NetResult result =  this.doMeishidarenListPost(GET_MESSAGE, bundle);
+	
+	if(result.getErrorCode().equals("0")){
+		
+		message  = JsonParser.parseMessage(result.getRetContent()) ;
+		
+		
+	}else{
+		throw new ParserException(result.getErrorMessage() ) ;
+	}
+	return message;
+}
+
+//3.16.	更新消息列表
+//Method：readMessages
+//
+//调用参数
+//参数	描 述	格 式
+//uid	用户唯一ID	字符串
+//password	密码	字符串
+//msgid	最大msgid	
+//
+//返回项说明：
+//返回项	描 述	格 式
+//status	是否成功	0表示成功，其他为失败原因代码
+//msg	消息	“成功”，或失败原因
+//content	返回内容	JSONArray
+public NetResult ReadMessages(String uid,String pwd,String msgid) throws IOException, ParserException, NoConnectException{
+	ArrayList<TweetMsg>  message = null;
+	Bundle bundle = new Bundle();
+	bundle.putString("uid", uid);
+	bundle.putString("password", pwd);
+	bundle.putString("msgid", msgid);
+	NetResult result =  this.doMeishidarenListPost("readMessages", bundle);
+	
+	if(!result.getErrorCode().equals("0")){
+		throw new ParserException(result.getErrorMessage() ) ;
+	}
+	return result ; 
+}
+
+
+//3.13.	推荐分享美食微博
+//Method：shareTweet
+//
+//调用参数
+//参数	描 述	格 式
+//uid	用户唯一ID	字符串
+//password	密码	字符串
+//descriptioncomment	推荐描述评论内容	字符串
+//tweetid	评论的美食微博id	字符串
+//Atuserids	被@人本地好友的uid	字符串，多个用分号;隔开
+//weibouserids	被@的微博好友的uid	字符串，多个用分号;隔开
+//
+//返回项说明：
+//返回项	描 述	格 式
+//status	是否成功	0表示成功，其他为失败原因代码
+//msg	消息	“成功”，或失败原因
+//content	返回内容	“”
+public NetResult shareTweet(String uid, String psw,String descriptioncomment, String tweetid,String Atuserids,String userNames,String weibouserids,String weibouserNames) throws NoConnectException, IOException, java.io.IOException, ParserException{
+	Bundle bundle = new Bundle();
+	bundle.putString("uid", uid);
+	bundle.putString("password",  psw);
+	bundle.putString("tweetid", tweetid);
+	
+	bundle.putString("description", descriptioncomment);
+	bundle.putString("userids", Atuserids);
+	bundle.putString("usernames", userNames);
+	bundle.putString("weiboids", weibouserids);
+	bundle.putString("weibonames", weibouserNames);
+	
+	NetResult result =  this.doMeishidarenPost(SHARE_TWEET, bundle);
+	if(!result.getErrorCode().equals("0")){
+		throw new ParserException(result.getErrorMessage() ) ;
+	}
+	return result ; 
+}
+
+//3.20.	搜索热词
+//Method：getTopSearchWords
+//
+//调用参数
+//参数	描 述	格 式
+//uid	用户唯一ID	字符串
+//password	密码	字符串
+//num	数目  目前是取热门用户和热门美食，所以总共取得的关键词为2*num,num默认为20
+//
+//返回项说明：
+//返回项	描 述	格 式
+//status	是否成功	0表示成功，其他为失败原因代码
+//msg	消息	“成功”，或失败原因
+//content	返回内容	“”
+public  String[] getTopSearchWords(String uid,String password,String num) throws IOException, ParserException, NoConnectException{
+	
+	//TODO:do get
+	Bundle bundle = new Bundle();
+	bundle.putString("uid", uid);
+	bundle.putString("password",  password);
+	bundle.putString("num", num);
+	NetResult result =  this.doTopSearchWordsGet(GET_TOP_SEARCH_WORDS, bundle);
+    String[] str = null;
+
+		str =JsonParser.parseTopSearchWords(result.getRetContent()) ;
+	Log.i("TopSearchWords:",str.toString() );
+	return str ; 
+}
+
+
+		/*
+		 * 5.1.	检查更新接口 
+		 * Method：appupdate
+		 *  
+	参数:
+	  type: 设备类型（必须包含）。目前定义的类型有[iphone,android]
+	  version: 设备app当前版本号
+	  返回结果
+	{
+    	"status": "0",
+    	"msg": "成功",
+    	"content": {
+        	"update": 1,                         // 是否更新，整数，0为不更新，1为更新
+        	"desc": "新版本修复了xxx错误。。",     //更新内容
+        	"updateurl": "http://xxx"           // 在线下载地址，字符串，无需更新时返回""
+    	}
+	}
+		 */
+		
+
+		public UpdateDetail getUpdateVersion() throws NoConnectException, IOException, ParserException{
+			UpdateDetail updateDetail = null;
+			Bundle bundle = new Bundle() ;
+			bundle.putString("type", UpdateDetail.Dtype) ;
+//			bundle.putString("version",  UpdateDetail.Version) ;
+			NetResult result =  this.doMeishidarenPost(APPUPDATE_BASIC_URL, bundle);
+			if(result.getErrorCode().equals("0")){
+				updateDetail  = JsonParser.parseUpdateResult(result.getRetContent()) ;
+			}else{
+				throw new ParserException(result.getErrorMessage() ) ;
+			}
+			return updateDetail;
+		}
+		
+//3.20.	搜索热词
+//Method：deleteTweet
+//调用参数
+//参数	描 述	格 式
+//uid	用户唯一ID	字符串
+//password	密码	字符串
+//tweetid	美食id
+//
+//返回项说明：
+//返回项	描 述	格 式
+//status	是否成功	0表示成功，其他为失败原因代码
+//msg	消息	“成功”，或失败原因
+//content	返回内容	“”
+public NetResult deleteTweet(String uid, String psw, String tweetid) throws NoConnectException, IOException, java.io.IOException, ParserException{
+	   Bundle bundle = new Bundle();
+	   bundle.putString("uid", uid);
+	   bundle.putString("password",  psw);
+	   bundle.putString("tweetid", tweetid);
+	   NetResult result =  this.doMeishidarenPost(DELETETWEET, bundle);
+	   if(!result.getErrorCode().equals("0")){
+				throw new ParserException(result.getErrorMessage() ) ;
+	   }
+	return result; 
+}
+
+}
